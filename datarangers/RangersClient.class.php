@@ -32,36 +32,61 @@ class RangersClient extends Client
      */
     public function dataRangers($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_RANGERS, $method, $path, $headers, $params, $body, $timeout);
-    }
-
-    public function analysisBase($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
-    {
-        return $this->request(Constants::$ANALYSIS_BASE, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_RANGERS, $method, $path, $headers, $params, $body, $timeout);
     }
 
     public function dataFinder($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_FINDER, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_FINDER, $method, $path, $headers, $params, $body, $timeout);
     }
 
     public function dataTracer($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_TRACER, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_TRACER, $method, $path, $headers, $params, $body, $timeout);
     }
 
     public function dataTester($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_TESTER, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_TESTER, $method, $path, $headers, $params, $body, $timeout);
     }
 
     public function dataAnalyzer($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_ANALYZER, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_ANALYZER, $method, $path, $headers, $params, $body, $timeout);
     }
 
     public function dataProfile($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
     {
-        return $this->request(Constants::$DATA_PROFILE, $method, $path, $headers, $params, $body, $timeout);
+        return $this->requestService(Constants::$DATA_PROFILE, $method, $path, $headers, $params, $body, $timeout);
     }
+
+    public function request($serviceUrl, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120)
+    {
+        return $this->doRequest($method, $serviceUrl, $headers, $params, $body, $timeout);
+    }
+
+    public function uploadFile($serviceUrl, $method = "GET", $headers = null, $params = null, $fileName = null, $timeout = 120)
+    {
+        $file_contents = file_get_contents($fileName);
+        $boundary = $this->getBoundary();
+        $content_type = mime_content_type($fileName);
+
+        $body = "--" . $boundary . "\r\n" .
+            "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($fileName) . "\"\r\n" .
+            "Content-Type: " . $content_type . "\r\n\r\n" .
+            $file_contents . "\r\n";
+
+        $body .= "--" . $boundary . "--\r\n";
+        $headers["Content-Type"] = "multipart/form-data; boundary=" . $boundary;
+
+        return $this->doRequest($method, $serviceUrl, $headers, $params, $body, $timeout);
+    }
+
+    private function getBoundary()
+    {
+        $boundary = floor(microtime(true) * 1000);
+        $boundary .= floor(rand(10000000, 100000000));
+        return $boundary;
+    }
+
 }

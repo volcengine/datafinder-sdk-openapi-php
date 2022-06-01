@@ -26,7 +26,6 @@ public function __construct($ak, $sk, $url = "https://analytics.volcengineapi.co
  * @throws ClientNotSupportException
  */
 public function dataRangers($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120);
-public function analysisBase($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120);
 public function dataFinder($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120);
 public function dataTracer($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120);
 public function dataTester($path, $method = "GET", $headers = null, $params = null, $body = null, $timeout = 120);
@@ -77,12 +76,6 @@ class TestClient
     public function __construct($ak, $sk)
     {
         $this->client = new \DataRangers\RangersClient($ak, $sk);
-    }
-
-
-    public function analysisRequest(\DataRangers\DSL $dsl)
-    {
-        echo $this->client->dataFinder("/openapi/v1/analysis", "post", null, null, json_encode($dsl));
     }
 
     public function testFunnel($dsl)
