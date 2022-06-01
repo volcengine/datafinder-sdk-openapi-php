@@ -39,7 +39,6 @@ class Client
     {
         if (Client::$services == null) {
             Client::$services = [
-                Constants::$ANALYSIS_BASE => Constants::$ANALYSIS_BASE_URL,
                 Constants::$DATA_FINDER => Constants::$DATA_FINDER_URL,
                 Constants::$DATA_TRACER => Constants::$DATA_TRACER_URL,
                 Constants::$DATA_TESTER => Constants::$DATA_TESTER_URL,
@@ -59,28 +58,18 @@ class Client
         }
     }
 
-    protected function request($service, $method, $path, $headers, $params, $body,$timeout=120)
+    protected function requestService($service, $method, $path, $headers, $params, $body,$timeout=120)
     {
         $method = strtoupper($method);
         if (!in_array($method, Constants::$METHOD_ALLODED)) {
             throw new ClientNotSupportException(Constants::$METHOD_NOT_SUPPORT . ":" . $method);
-        }
-        if (Constants::$POST == $method && $body == null) {
-            throw new ClientNotSupportException(Constants::$POST_BODY_NULL);
         }
         $servicePath = $this->getServicePath($service);
         if ($servicePath == "") {
             throw new ClientNotSupportException(Constants::$SERVICE_NOT_SUPPORT . ":" . $service);
         }
         $serviceUrl = $servicePath . $path;
-        $authorization = DslSign::sign($this->ak, $this->sk, $this->expiration, $method, $serviceUrl, $params, $body);
-        if ($headers == null) $headers = [];
-        $headers[Constants::$AUTHORIZATION] = $authorization;
-        if (Constants::$POST == $method) {
-            $headers[Constants::$CONTENT_TYPE] = Constants::$APPLICATION_JSON;
-        }
-        $url = $this->url . $serviceUrl;
-        return HttpRequests::do($method, $url, $headers, $params, $body,$timeout);
+        return $this->doRequest($method, $serviceUrl, $headers, $params, $body, $timeout);
     }
 
 
@@ -162,5 +151,27 @@ class Client
     public function setExpiration($expiration)
     {
         $this->expiration = $expiration;
+    }
+
+    /**
+     * @param string $method
+     * @param string $serviceUrl
+     * @param $params
+     * @param $body
+     * @param $headers
+     * @param $timeout
+     * @return false|string
+     */
+    protected function doRequest(string $method, string $serviceUrl, $headers, $params, $body, $timeout)
+    {
+        $method = strtoupper($method);
+        $authorization = DslSign::sign($this->ak, $this->sk, $this->expiration, $method, $serviceUrl, $params, $body);
+        if ($headers == null) {
+            $headers = [];
+            $headers[Constants::$CONTENT_TYPE] = Constants::$APPLICATION_JSON;
+        }
+        $headers[Constants::$AUTHORIZATION] = $authorization;
+        $url = $this->url . $serviceUrl;
+        return HttpRequests::do($method, $url, $headers, $params, $body, $timeout);
     }
 }
