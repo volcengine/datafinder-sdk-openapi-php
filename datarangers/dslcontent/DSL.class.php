@@ -74,7 +74,7 @@ class DSL implements \JsonSerializable
     public function addAppIds($appIds)
     {
         if ($this->appIds == null) $this->appIds = [];
-        if (is_array($appIds)) array_merge($this->appIds, $appIds);
+        if (is_array($appIds)) $this->appIds = array_merge($this->appIds, $appIds);
         else array_push($this->appIds, $appIds);
     }
 
