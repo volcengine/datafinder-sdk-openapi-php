@@ -1,7 +1,7 @@
 this is datafinder openapi sdk in php.
 
 ## LICENSE
-see [LICENSE.md](LICENSE.md)
+see [LICENSE](LICENSE)
 
 ## Security and privacy
 This project takes security seriously.
